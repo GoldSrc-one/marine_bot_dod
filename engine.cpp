@@ -642,41 +642,6 @@ void pfnMessageBegin(int msg_dest, int msg_type, const float *pOrigin, edict_t *
 			if (!dont_dump_this_message)
 				fp = fopen(debug_fname, "a"); fprintf(fp, "pfnMessageBegin: edict=%p dest=%d type=%d (gametime=%.3f)\n", ed, msg_dest, msg_type, gpGlobals->time); fclose(fp);
 		}
-
-
-		//@@@@@@@@@@@@@ TEST ScoreInfoLong
-#ifdef DEBUG
-
-		if (msg_type == 0)
-		{
-			util.DebugInFile("message ScoreInfoLong via type == 0 (ie. the default failed registration) called");
-			extern edict_t* listenserver_edict;
-			conOutput.Print(listenserver_edict, "@@@@@@@@@@@@@@@@@@@@@ ScoreInfoLong via type == 0 called!!!\n", MType::msg_null);
-		}
-
-		/*/
-		if (msg_type == 75)
-		{
-			util.DebugInFile("message ScoreInfo (standard msg, type == 75) called");
-			extern edict_t* listenserver_edict;
-			conOutput.Print(listenserver_edict, "!!!ScoreInfo (standard msg, type == 75) called!!!\n", MType::msg_null);
-		}
-		/**/
-
-		/**/
-		if (msg_type == 76)
-		{
-			util.DebugInFile("message ScoreInfoLong via type == 76 (ie. registered as ScoreInfoL) called");
-			extern edict_t* listenserver_edict;
-			conOutput.Print(listenserver_edict, "@@@@@@@@@@@@@@@@@@@@@ ScoreInfoLong via type == 76 called!!!\n", MType::msg_null);
-		}
-		/**/
-
-#endif // DEBUG
-		//@@@@@@@@@@@
-
-
-
 	}
 	
 	(*g_engfuncs.pfnMessageBegin)(msg_dest, msg_type, pOrigin, ed);
