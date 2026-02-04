@@ -940,31 +940,14 @@ void* pfnGetModelPtr(edict_t* pEdict)
 	//if (debug_engine) { fp = fopen(debug_fname, "a"); fprintf(fp, "pfnGetModelPtr: %p\n", pEdict); fclose(fp); }
 	return (*g_engfuncs.pfnGetModelPtr)(pEdict);
 }
+
+
 int pfnRegUserMsg(const char* pszName, int iSize)
 {
-	int msg;
+	if(strcmp(pszName, "ScoreInfoLong") == 0)
+		pszName = "ScoreInfoL";
 
-	//msg = (*g_engfuncs.pfnRegUserMsg)(pszName, iSize);// Original code
-
-
-	//@@@@@@@@@@@@@ TEST ScoreInfoLong
-	/**/
-
-	if (strcmp(pszName, "ScoreInfoLong") == 0)
-	{
-		char tempName[12] = { "ScoreInfoL" };
-
-		msg = (*g_engfuncs.pfnRegUserMsg)(tempName, iSize);
-	}
-	else
-		/**/
-		msg = (*g_engfuncs.pfnRegUserMsg)(pszName, iSize);
-
-	/**/
-	//@@@@@@@@@@
-
-
-
+	int msg = (*g_engfuncs.pfnRegUserMsg)(pszName, iSize);
 
 	if (gpGlobals->deathmatch)
 	{
