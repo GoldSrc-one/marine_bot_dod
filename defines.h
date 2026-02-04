@@ -26,7 +26,7 @@
 // Marine Bot source code is compatible with original HL SDK v2.3 by default,
 // but by setting this flag the source code will compile even under new HL SDK by Allied Modders
 // (it affects several engine functions mainly in engine.cpp)
-//#define NEWSDKAM		1
+#define NEWSDKAM		1
 
 // by setting this flag MB source codes will successfully compile under the new Valve HL SDK released in year 2013
 //#define NEWSDKVALVE	1
