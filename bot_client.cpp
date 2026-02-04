@@ -169,6 +169,11 @@ void BotClient_CurrentWeapon(void *p, int bot_index)
 
 				if (iState == 1)
 				{
+					if(bots[bot_index].current_weapon.iId <= 0 && !IsPrimary(iId)) {
+						bots[bot_index].main_weapon = NO_VAL;
+						BotSetWeaponsUsage(&bots[bot_index]);
+					}
+
 					bots[bot_index].current_weapon.isActive = iState;
 					bots[bot_index].current_weapon.iId = iId;
 					bots[bot_index].current_weapon.iClip = iClip;
@@ -176,6 +181,11 @@ void BotClient_CurrentWeapon(void *p, int bot_index)
 					// update the ammo counts for this weapon
 					bots[bot_index].current_weapon.iAmmo1 =	bots[bot_index].curr_rgAmmo[weapon_defs[iId].iAmmo1];
 					bots[bot_index].current_weapon.iAmmo2 =	bots[bot_index].curr_rgAmmo[weapon_defs[iId].iAmmo2];
+
+					if(bots[bot_index].main_weapon != iId && IsPrimary(iId)) {
+						bots[bot_index].main_weapon = iId;
+						BotSetWeaponsUsage(&bots[bot_index]);
+					}
 				}
 			}
 		}

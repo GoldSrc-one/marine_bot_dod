@@ -1815,6 +1815,9 @@ bool IsHandgun(int weapon)
 	return ((weapon == dod_weapon_colt) || (weapon == dod_weapon_luger) || (weapon == dod_weapon_webley));
 }
 
+bool IsMelee(int weapon) {
+	return ((weapon == dod_weapon_amerknife) || (weapon == dod_weapon_gerknife) || (weapon == dod_weapon_spade));
+}
 
 /*
 * checks if the weapon is a grenade
@@ -1822,6 +1825,10 @@ bool IsHandgun(int weapon)
 bool IsGrenade(int weapon)
 {
 	return ((weapon == dod_weapon_handgrenade) || (weapon == dod_weapon_stickgrenade));
+}
+
+bool IsPrimary(int weapon) {
+	return !IsHandgun(weapon) && !IsMelee(weapon) && !IsGrenade(weapon);
 }
 
 
