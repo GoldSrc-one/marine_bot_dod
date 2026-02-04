@@ -367,7 +367,7 @@ public:
 
 	inline void SetRoundState(int newVal) { round_state = newVal; }
 	inline int GetRoundState(void) { return round_state; }
-	inline void ResetRoundState(void) { round_state = -1; }
+	inline void ResetRoundState(void) { round_state = 1; }
 	inline void SetIsBritishTeam(int newVal) { is_british_team = newVal; }
 	inline bool IsBritishTeam(void) { return (is_british_team == 1); }
 	inline void ResetIsBritishTeam(void) { is_british_team = 0; }
