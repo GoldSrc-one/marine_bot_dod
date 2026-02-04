@@ -171,7 +171,16 @@ void BotClient_CurrentWeapon(void *p, int bot_index)
 				{
 					if(bots[bot_index].current_weapon.iId <= 0 && !IsPrimary(iId)) {
 						bots[bot_index].main_weapon = NO_VAL;
-						BotSetWeaponsUsage(&bots[bot_index]);
+						bots[bot_index].SetWeaponStatus(WS_NOAMMOFORMAIN);
+
+						if(IsHandgun(iId)) {
+							bots[bot_index].UseWeapon(uWeapon::backup);
+						}
+						else {
+							bots[bot_index].backup_weapon = NO_VAL;
+							bots[bot_index].SetWeaponStatus(WS_NOAMMOFORBACKUP);
+							bots[bot_index].UseWeapon(uWeapon::knife);
+						}
 					}
 
 					bots[bot_index].current_weapon.isActive = iState;
@@ -184,7 +193,7 @@ void BotClient_CurrentWeapon(void *p, int bot_index)
 
 					if(bots[bot_index].main_weapon != iId && IsPrimary(iId)) {
 						bots[bot_index].main_weapon = iId;
-						BotSetWeaponsUsage(&bots[bot_index]);
+						bots[bot_index].UseWeapon(uWeapon::main);
 					}
 				}
 			}
