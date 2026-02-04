@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "marine_bot", "marine_bot.vcxproj", "{990B6E3E-55E3-4F7A-9BD2-1F4570509CD0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{990B6E3E-55E3-4F7A-9BD2-1F4570509CD0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{990B6E3E-55E3-4F7A-9BD2-1F4570509CD0}.Debug|Win32.Build.0 = Debug|Win32
+		{990B6E3E-55E3-4F7A-9BD2-1F4570509CD0}.Release|Win32.ActiveCfg = Release|Win32
+		{990B6E3E-55E3-4F7A-9BD2-1F4570509CD0}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {97CFCB3E-1A22-4F9C-82A2-662244EDCEB7}
+	EndGlobalSection
+EndGlobal
