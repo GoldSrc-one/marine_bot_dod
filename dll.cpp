@@ -831,7 +831,7 @@ void DispatchKeyValue( edict_t *pentKeyvalue, KeyValueData *pkvd )
 
 				// then try to get the new value to modify this capture area
 				if (ModifiedCaptureAreas(modifiedValue, "axis_to_capture", capturearea_counter))
-					sprintf(pkvd->szValue, "%s", modifiedValue);
+					sprintf((char*)pkvd->szValue, "%s", modifiedValue);
 			}
 
 			dodCaptureArea->SetTeamTwoPlayersToCapture(pentKeyvalue, atoi(pkvd->szValue));
@@ -843,7 +843,7 @@ void DispatchKeyValue( edict_t *pentKeyvalue, KeyValueData *pkvd )
 				char modifiedValue[2]{};
 
 				if (ModifiedCaptureAreas(modifiedValue, "allies_to_capture", capturearea_counter))
-					sprintf(pkvd->szValue, "%s", modifiedValue);
+					sprintf((char*)pkvd->szValue, "%s", modifiedValue);
 			}
 
 			dodCaptureArea->SetTeamOnePlayersToCapture(pentKeyvalue, atoi(pkvd->szValue));
