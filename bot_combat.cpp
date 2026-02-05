@@ -2467,6 +2467,33 @@ edict_t* bot_t::BotFindEnemy()
 		}
 	}
 
+	if(pNewEnemy == NULL) {
+		//any monsters nearby?
+		float nearest_distance = 1000.f;
+		edict_t* pMonster = NULL;
+		while(pMonster = util.FindEntityInSphere(pMonster, pEdict->v.origin, nearest_distance)) {
+			if(!(pMonster->v.flags & FL_MONSTER) || pMonster->v.takedamage == DAMAGE_NO || !util.IsAlive(pMonster))
+				continue;
+
+			if(util.AreTeammates(pEdict, pMonster) || (util.GetTeam(pMonster) == teamNULL && pMonster != pEdict->v.dmg_inflictor))
+				continue;
+
+			auto monster_distance = (pMonster->v.origin - pEdict->v.origin).Length();
+			if(monster_distance > nearest_distance)
+				continue;
+
+			vecEnd = 0.5f * (pMonster->v.absmin + pMonster->v.absmax);
+			if(!util.IsPlayerVisible(vecEnd, pEdict))
+				continue;
+
+			if(!util.IsInViewCone(&vecEnd, pEdict))
+				continue;
+
+			nearest_distance = monster_distance;
+			pNewEnemy = pMonster;
+		}
+	}
+
 	if (pNewEnemy)
 	{
 		// face the enemy

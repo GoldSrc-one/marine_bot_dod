@@ -513,7 +513,7 @@ bot_t *UTIL_GetBotPointer(edict_t *pEdict)
 
 bool utils_t::IsAlive(edict_t *pEdict)
 {
-	return ((pEdict->v.deadflag == DEAD_NO) && !(pEdict->v.effects & EF_NODRAW) && (pEdict->v.health > 0) && !(pEdict->v.flags & FL_NOTARGET) && (pEdict->v.solid == SOLID_SLIDEBOX));
+	return ((pEdict->v.deadflag == DEAD_NO) && !(pEdict->v.effects & EF_NODRAW) && (pEdict->v.health > 0) && !(pEdict->v.flags & FL_NOTARGET) && (pEdict->v.solid == SOLID_SLIDEBOX || pEdict->v.solid == SOLID_BBOX));
 }
 
 
@@ -857,33 +857,15 @@ int utils_t::IsPlayerVisible(const Vector &vecOrigin, const Vector &vecLookerOri
 	// the traceline reached the enemy without hitting anything else -> bot may eventually open fire
 	if (IsEntityName(tr.pHit, "worldspawn") && (tr.flFraction == 1.0))
 	{
-		/*/
-#ifdef DEBUG
-		char str[256]{};
-		sprintf(str, "(%s)*** I see <%s>!\n", STRING(pEdict->v.netname), STRING(obstacle->v.classname));
-		conOutput.Notify(str);
-#endif // DEBUG
-		/**/
-
-
 		// there was a player entity so we need to check if it isn't our teammate (i.e. teammate standing between the bot and the enemy)
-		if (IsEntityName(obstacle, "player"))
+		if (AreTeammates(pEdict, obstacle))
 		{
 			// we would hit a teammate so don't shoot and risk a team kill
-			if (AreTeammates(pEdict, obstacle))
-			{
-
-				//@@@@@
-#ifdef DEBUG
-				//conOutput.Notify("*** BREAKING MY TEAMMATE IS IN THE WAY!!!\n");
-#endif // DEBUG
-
-				return VIS_NO;
-			}
-
-			// it must be enemy so the bot can open fire
-			return VIS_YES;
+			return VIS_NO;
 		}
+
+		if(obstacle->v.takedamage != DAMAGE_NO && util.IsAlive(obstacle))
+			return VIS_YES;
 
 		// there was a breakable entity, all we need to do is check if the entity is done in a way players can see through (ie. some transparency and not rendered as normal or solid)
 		if (IsEntityName(obstacle, "func_breakable") &&	(obstacle->v.rendermode != kRenderNormal) && (obstacle->v.rendermode != kRenderTransAlpha) &&
