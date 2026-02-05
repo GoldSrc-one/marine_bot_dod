@@ -454,6 +454,21 @@ int utils_t::GetTeam(edict_t* pEntity)
 	return teamNULL;  // return this flag if team is unknown
 }
 
+bool utils_t::AreTeammates(edict_t* pEntity1, edict_t* pEntity2) {
+	if(pEntity1 == pEntity2)
+		return true;
+
+	if(!internals.IsTeamPlay())
+		return false;
+
+	auto team1 = GetTeam(pEntity1);
+	auto team2 = GetTeam(pEntity2);
+	if(team1 == teamNULL || team2 == teamNULL)
+		return false;
+
+	return team1 == team2;
+}
+
 
 /*
 * returns the bot array index of passed edict
@@ -854,11 +869,8 @@ int utils_t::IsPlayerVisible(const Vector &vecOrigin, const Vector &vecLookerOri
 		// there was a player entity so we need to check if it isn't our teammate (i.e. teammate standing between the bot and the enemy)
 		if (IsEntityName(obstacle, "player"))
 		{
-			int pEdict_team = GetTeam(pEdict);
-			int obstacle_team = GetTeam(obstacle);
-
 			// we would hit a teammate so don't shoot and risk a team kill
-			if (pEdict_team == obstacle_team)
+			if (AreTeammates(pEdict, obstacle))
 			{
 
 				//@@@@@
@@ -1412,11 +1424,8 @@ bool utils_t::CanBotHearThisVoiceMessage(bot_t* pBot, edict_t* pInvoker, float r
 	if (IsVisible(pInvoker->v.origin + pInvoker->v.view_ofs, pEdict) == false)
 		return false;
 
-	int player_team = GetTeam(pInvoker);
-	int bot_team = GetTeam(pEdict);
-
 	// teams don't match so break it
-	if (bot_team != player_team)
+	if (!AreTeammates(pInvoker, pEdict))
 		return false;
 
 	// get the distance to the invoker
@@ -1444,11 +1453,8 @@ bool utils_t::CanBotSeeThisHandSignal(bot_t* pBot, edict_t* pInvoker, float rang
 	if (IsVisible(pInvoker->v.origin + pInvoker->v.view_ofs, pEdict) == false)
 		return false;
 
-	int player_team = GetTeam(pInvoker);
-	int bot_team = GetTeam(pEdict);
-
 	// teams doesn't match so break it
-	if (bot_team != player_team)
+	if (!AreTeammates(pInvoker, pEdict))
 		return false;
 
 	// get the distance to the invoker

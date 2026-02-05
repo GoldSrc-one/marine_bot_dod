@@ -617,6 +617,8 @@ int DispatchSpawn( edict_t *pent )
 			// the first bot will join the game after like 6 seconds on Dedicated server so this needs to be done before that to give him relevant waypoint data
 			internals.SetUpdateWaypointDataTime(gpGlobals->time + 5.0f);
 
+			BotCheckTeamplay();
+
 			g_GameRules = true;
 
 			char mapname[64]{};

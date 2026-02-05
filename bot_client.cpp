@@ -479,11 +479,8 @@ void BotClient_Damage(void *p, int bot_index)
 				// react only on damage taken from another player's gunfire ... at least for now
 				if (util.IsEntityName(pDmgEnt, "player"))
 				{
-					int enemy_team = util.GetTeam(bots[bot_index].pEdict->v.dmg_inflictor);
-					int bot_team = util.GetTeam(bots[bot_index].pEdict);
-
 					// try to warn the teammate who's shooting at you
-					if ((enemy_team == bot_team) && (RANDOM_LONG(1, 100) <= 35) && util.IsAlive(bots[bot_index].pEdict))
+					if (util.AreTeammates(bots[bot_index].pEdict->v.dmg_inflictor, bots[bot_index].pEdict) && (RANDOM_LONG(1, 100) <= 35) && util.IsAlive(bots[bot_index].pEdict))
 					{
 						bots[bot_index].SetSubTask(ST_SAY_CEASEFIRE);
 					}

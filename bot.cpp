@@ -1093,11 +1093,8 @@ void BotFindItem( bot_t *pBot )
 		// handle thrown grenades
 		if (util.IsEntityName(pent, "grenade") || util.IsEntityName(pent, "grenade2"))
 		{
-			int grenade_team = util.GetTeam(pent);
-			int bot_team = util.GetTeam(pEdict);
-			
 			// ignore grenades thrown by your teammate or unknown grenades even if it might save lifes in certain cases (ie. TKs)
-			if ((grenade_team == bot_team) || (grenade_team == teamNULL))
+			if(util.AreTeammates(pent, pEdict))
 				continue;
 
 			vecStart = pEdict->v.origin + pEdict->v.view_ofs;
@@ -1494,7 +1491,6 @@ bool bot_t::UpdateSounds(edict_t* pPlayer)
 	static bool check_footstep_sounds = TRUE;
 	static float footstep_sounds_on;
 	float volume;
-	int bot_team, foe_team;
 	Vector v_sound;
 
 	// ignore sounds when on ladder (just for sure)
@@ -1515,11 +1511,8 @@ bool bot_t::UpdateSounds(edict_t* pPlayer)
 		{
 			volume = 500.0f;  // volume of sound being made (just pick something)
 
-			bot_team = util.GetTeam(pEdict);
-			foe_team = util.GetTeam(pPlayer);
-
 			// is possible enemy really an enemy (ie not in same team)
-			if ((foe_team != teamNULL) && (bot_team != foe_team))
+			if (!util.AreTeammates(pEdict, pPlayer))
 			{
 				v_sound = pPlayer->v.origin - pEdict->v.origin;
 
@@ -4656,7 +4649,7 @@ void bot_t::BotThink()
 	if (IsSubTask(ST_SAY_CEASEFIRE))
 	{
 		// check if the damage inflictor didn't change yet and if it is really a teammate
-		if ((pEdict->v.dmg_inflictor != pEdict) && (pEdict->v.dmg_inflictor->v.netname != NULL) && (util.GetTeam(pEdict->v.dmg_inflictor) == util.GetTeam(pEdict)))
+		if ((pEdict->v.dmg_inflictor != pEdict) && (pEdict->v.dmg_inflictor->v.netname != NULL) && util.AreTeammates(pEdict->v.dmg_inflictor, pEdict))
 			UseTextMessage(botSay::cease_fire, pEdict->v.dmg_inflictor);
 
 		RemoveSubTask(ST_SAY_CEASEFIRE);

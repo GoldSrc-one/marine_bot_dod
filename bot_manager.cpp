@@ -103,8 +103,6 @@ internals_t::internals_t()
 	ResetChangeStartPositions();
 	ResetChangeCaptureAreas();
 	ResetHUDMessageTime();
-	ResetTeamPlay();
-	ResetTeamPlayChecked();
 	ResetMeleeOnlyMode();
 	ResetIsCustomWaypoints();
 	ResetWaypointsAutoSave();
@@ -133,8 +131,6 @@ void internals_t::ResetOnMapChange(void)
 	ResetIsEnemyDistanceLimit();
 	ResetEnemyDistanceLimit();
 	ResetHUDMessageTime();
-	ResetTeamPlay();
-	ResetTeamPlayChecked();
 	ResetIsCustomWaypoints();
 	ResetWaypointsAutoSave();
 	ResetCustomDefaultWaypointRange();

@@ -321,12 +321,8 @@ public:
 	inline void SetHUDMessageTime(float newVal) { hud_messsage_time = newVal; }
 	inline float GetHUDMessageTime(void) { return hud_messsage_time; }
 	inline void ResetHUDMessageTime(void) { hud_messsage_time = 0.0f; }
-	inline void SetTeamPlay(float newVal) { is_team_play = newVal; }
-	inline float GetTeamPlay(void) { return is_team_play; }
-	inline void ResetTeamPlay(void) { is_team_play = 0.0f; }
-	inline void SetTeamPlayChecked(bool newVal) { teamplay_checked = newVal; }
-	inline bool IsTeamPlayChecked(void) { return teamplay_checked; }
-	inline void ResetTeamPlayChecked(void) { teamplay_checked = false; }
+	inline void SetTeamPlay(bool newVal) { is_team_play = newVal; }
+	inline bool IsTeamPlay(void) { return is_team_play; }
 	inline void SetMeleeOnlyMode(bool newVal) { is_melee_only = newVal; }
 	inline bool IsMeleeOnlyMode(void) { return is_melee_only; }
 	inline void ResetMeleeOnlyMode(void) { is_melee_only = false; }
@@ -400,8 +396,7 @@ private:
 	bool change_capture_areas;		// do we want to use the alternative data for the capture areas defined in external files
 
 	float hud_messsage_time;		// to prevent overloading when displaying waypointing info on HUD
-	float is_team_play;
-	bool teamplay_checked;
+	bool is_team_play;
 	bool is_melee_only;
 
 	bool is_custom_waypoints;		// allows loading custom waypoints (read from different folder)

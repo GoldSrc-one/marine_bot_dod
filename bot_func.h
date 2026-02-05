@@ -31,6 +31,7 @@ public:
 	edict_t* FindEntityByClassname(edict_t* pentStart, const char* szName);
 	edict_t* FindEntityByTargetname(edict_t* pentStart, const char* szName);
 	int GetTeam(edict_t* pEntity);
+	bool AreTeammates(edict_t* pEntity1, edict_t* pEntity2);
 	int GetBotIndex(edict_t* pEdict);
 	bool IsAlive(edict_t* pEdict);
 	bool IsEdictProne(edict_t* pEdict);
@@ -143,6 +144,7 @@ bool BotCanDuckUnder(bot_t* pBot);
 bool BotCheckWallOnLeft( bot_t *pBot );
 bool BotCheckWallOnRight( bot_t *pBot );
 
+void BotCheckTeamplay(void);
 bool InitWeaponsForThisMod(void);
 bool BotWeaponArraysInit(const char* weapon_definitions_filename);
 bool BotTargetOffsetsArrayInit(const char* target_offsets_filename);

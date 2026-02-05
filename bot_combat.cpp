@@ -129,7 +129,6 @@ inline void SelectMainWeapon(bot_t* pBot);
 inline void SelectBackupWeapon(bot_t* pBot);
 inline void SelectMeleeWeapon(bot_t* pBot);
 inline void SelectGrenade(bot_t* pBot);
-void BotCheckTeamplay(void);
 void BotReactions(bot_t *pBot);
 float BotGetDistanceToEnemy(bot_t* pBot);
 void DontSeeEnemyActions(bot_t *pBot);
@@ -1883,11 +1882,9 @@ void DefineReloadTimeForCurrentWeapon(bot_t* pBot)
 */
 void BotCheckTeamplay(void)
 {
-	//internals.SetTeamPlay(CVAR_GET_FLOAT("mp_teamplay"));  // teamplay enabled?
-
 	// DoD doesn't seem to set the teamplay cvar at all
-	internals.SetTeamPlay(1.0f);
-	internals.SetTeamPlayChecked(true);
+	auto teamlist = CVAR_GET_STRING("mp_teamlist");
+	internals.SetTeamPlay(teamlist && teamlist[0]);
 }
 
 
@@ -2363,7 +2360,6 @@ edict_t* bot_t::BotFindEnemy()
 
 	if (pNewEnemy == NULL)
 	{
-		int player_team, bot_team;
 		float player_distance;
 
 		// if bot already has an enemy try to find someone else who's closer
@@ -2406,10 +2402,6 @@ edict_t* bot_t::BotFindEnemy()
 			nearest_distance = GetWeaponEffectiveRange();
 		}
 
-		// check for team play...
-		if (internals.IsTeamPlayChecked() == false)
-			BotCheckTeamplay();
-
 		// search the world for players
 		for (int clients = 1; clients <= gpGlobals->maxClients; clients++)
 		{
@@ -2426,16 +2418,9 @@ edict_t* bot_t::BotFindEnemy()
 				if (botdebugger.IsObserverMode() && !(pPlayer->v.flags & FL_FAKECLIENT))
 					continue;
 
-				// is team play enabled?
-				if (internals.GetTeamPlay() > 0.0f)
-				{
-					player_team = util.GetTeam(pPlayer);
-					bot_team = util.GetTeam(pEdict);
-
-					// don't target your teammates or players from unknown team
-					if ((bot_team == player_team) || (player_team == teamNULL))
-						continue;
-				}
+				// don't target your teammates or players from unknown team
+				if (util.AreTeammates(pPlayer, pEdict))
+					continue;
 
 				// get the distance
 				player_distance = (pPlayer->v.origin - pEdict->v.origin).Length();
