@@ -1333,7 +1333,7 @@ void StartFrame( void )
 			errormsgs.ResetMessageSystem();
 
 			// show the presentation after some time from map change
-			presentation_time = gpGlobals->time + 90.0f;
+			presentation_time = externals.GetPresentationTime() ? gpGlobals->time + externals.GetPresentationTime() : 0;
 
 			// check if mapname_marine.cfg file exists ie are there any specific settings & classes for this map
 			strcpy(mapname, STRING(gpGlobals->mapname));
@@ -1591,7 +1591,7 @@ void StartFrame( void )
 				check_send_info = gpGlobals->time + externals.GetInfoTime();
 
 			// show the presentation message after some time from server intialization
-			presentation_time = gpGlobals->time + 90.0f;
+			presentation_time = externals.GetPresentationTime() ? gpGlobals->time + externals.GetPresentationTime() : 0;
 
 			presentation_msg[0] = 0;
 
@@ -2796,6 +2796,7 @@ void ProcessBotCfgFile(bool only_count_custom_classes)
 			}
 			else
 			{
+				presentation_time = gpGlobals->time + externals.GetPresentationTime();
 				sprintf(msg, "%s time set to %.1fs\n", configFile.GetCVarName(), externals.GetPresentationTime());
 				conOutput.Print(NULL, msg, MType::msg_cfg_passed);
 			}
@@ -3578,7 +3579,6 @@ void MBServerCommands(void)
 			else
 			{
 				presentation_time = gpGlobals->time + externals.GetPresentationTime();
-
 				sprintf(msg, "%s time set to %.1fs\n", conInput.GetCmdName(), externals.GetPresentationTime());
 				conOutput.Print(NULL, msg, MType::msg_default);
 			}
