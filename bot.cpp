@@ -324,6 +324,7 @@ void bot_t::BotSpawnInit()
 
 	prev_globals_time = gpGlobals->time;
 
+	pGoal = NULL;
 
 #ifdef _DEBUG
 	is_forced = false;
@@ -1570,7 +1571,7 @@ bool bot_t::UpdateSounds(edict_t* pPlayer)
 */
 bool bot_t::CanResetPitch(void)
 {
-	return ((IsTask(TASK_IGNOREAIMWPTS) == false) && (IsSubTask(ST_FACEGENT_DONE) == false) && (IsSubTask(ST_FACEPOINTIS_DONE) == false) && (IsTurningToFaceGEnt() == false) &&
+	return ((IsTask(TASK_USE) == false) && (IsTask(TASK_IGNOREAIMWPTS) == false) && (IsSubTask(ST_FACEGENT_DONE) == false) && (IsSubTask(ST_FACEPOINTIS_DONE) == false) && (IsTurningToFaceGEnt() == false) &&
 		(wptmanager.IsWaypointTypeTeamPriority(GetCurrentAimWaypoint(), WptT::aim, 1, GetBotTeam()) == false));
 }
 
@@ -4112,7 +4113,7 @@ void bot_t::BotThink()
 			// no enemy, let's just wander around
 
 			// is bot NOT under water?
-			if ((pEdict->v.waterlevel != 2) && (pEdict->v.waterlevel != 3))
+			if ((pEdict->v.waterlevel != 2) && (pEdict->v.waterlevel != 3) && CanResetPitch())
 			{
 				// reset pitch to 0 (level horizontally)
 				pEdict->v.idealpitch = 0.0f;
@@ -4373,6 +4374,38 @@ void bot_t::BotThink()
 
 			// decide just once
 			RemoveNeed(NEED_POSTSPAWN_DECISIONS);
+		}
+	}
+
+	if(pGoal && pGoal->v.aiment && g_engfuncs.pfnIndexOfEdict(pGoal->v.aiment)) {
+		//go for the goal entity
+		auto goalEntity = pGoal->v.aiment;
+		auto viewOrigin = pEdict->v.origin + pEdict->v.view_ofs;
+		auto goalDir = goalEntity->v.origin - viewOrigin;
+		float dist = goalDir.Length2D();
+		TraceResult tr = {};
+		RemoveTask(TASK_USE | TASK_NOJUMP);
+		if(dist <= 128.f || (UTIL_TraceLine(goalEntity->v.origin, viewOrigin, ignore_monsters, goalEntity, &tr), tr.flFraction == 1.0f || tr.pHit == pEdict)) {
+			SetTask(TASK_USE | TASK_NOJUMP);
+			Vector bot_angles = UTIL_VecToAngles(goalDir);
+			pEdict->v.idealpitch = -bot_angles.x;
+			pEdict->v.ideal_yaw = bot_angles.y;
+			BotFixIdealPitch(pEdict);
+			BotFixIdealYaw(pEdict);
+
+			SetMoveSpeed(MoveSpeed::max);
+
+			//push the buttons if near enough
+			if(dist <= 128.f && (pGoal->v.button & IN_DUCK)) {
+				SetMoveSpeed(MoveSpeed::slow);
+				pEdict->v.button |= IN_DUCK;
+			}
+			if(dist <= 64.f && (pGoal->v.button & IN_USE)) {
+				SetDontCheckStuck("bot_goal");
+				SetMoveSpeed(MoveSpeed::slow);
+				if(pEdict->v.maxspeed == 1.0f || !(pEdict->v.oldbuttons & IN_USE))
+					pEdict->v.button |= IN_USE;
+			}
 		}
 	}
 

@@ -190,6 +190,7 @@ typedef BotMoveSpeed MoveSpeed;
 #define TASK_GOPRONE			(1<<24)	// the bot has to go prone
 #define TASK_AVOID_ENEMY		(1<<25)	// the bot has to ignore distant enemies
 #define TASK_IGNORE_ENEMY		(1<<26)	// the bot has to ignore all enemies except those who are right next to him
+#define TASK_USE				(1<<27)
 
 // pBot->bot_subtasks constants
 #define ST_AIM_GETAIMWPT	(1<<0)	// got to select one aim waypoint from the array of nearby aim waypoints as current aim target
@@ -899,6 +900,9 @@ public:
 	inline float GetPreviousGlobalsTime(void)			{ return prev_globals_time; }
 	inline void UpdatePreviousGlobalsTime(void)			{ prev_globals_time = gpGlobals->time; }
 
+	inline edict_t* GetGoal() { return pGoal; }
+	inline void SetGoal(edict_t* pGoal) { this->pGoal = pGoal; }
+
 
 	bool is_used;
 	int respawn_state;
@@ -1090,6 +1094,8 @@ private:
 
 
 	float prev_globals_time;		// holds previous gpGlobals->time
+
+	edict_t* pGoal;
 };
 
 extern bot_t *bots;

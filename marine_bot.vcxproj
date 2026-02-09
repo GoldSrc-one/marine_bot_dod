@@ -91,6 +91,7 @@
       <OutputFile>.\Debug\marine_bot.dll</OutputFile>
       <ImportLibrary>.\Debug\marine_bot.lib</ImportLibrary>
       <AdditionalDependencies>user32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <CustomBuildStep />
   </ItemDefinitionGroup>
