@@ -25,7 +25,7 @@
 
 #define MAX_TRIGGERS	8		// max triggers we can use
 
-#define MAX_WAYPOINTS 2048		// the maximum of waypoints for a map
+#define MAX_WAYPOINTS 4096		// the maximum of waypoints for a map
 
 #define MIN_WPT_DIST 80.0f		// used in auto waypointing - this is the radius around any previously placed waypoint where no other waypoint is added
 #define MAX_WPT_DIST 400.0f		// max distance between two waypoints bot can head toward to									??? does the path system actually utilize this? ???
@@ -698,6 +698,7 @@ public:
 
 	int FindNewWaypointForBot(bot_t* pBot, int skip_this_index);
 	int FindNewWaypointForBotAtPathEnd(bot_t* pBot, int wpt_index);
+	int FindNextWaypointOnShortestPath(int startingWaypoint, const Vector& goal);
 	int FindNextWaypointForBot(bot_t* pBot);
 	int FindAimingWaypointsForBot(bot_t* pBot, int wpt_index);
 

@@ -81,6 +81,12 @@ WAYPOINT waypoints[MAX_WAYPOINTS];
 // number of waypoints currently in use (cannot exceed MAX_WAYPOINTS)
 int num_waypoints;
 
+// waypoint neighbors
+short num_neighbors[MAX_WAYPOINTS];
+short* neighbors[MAX_WAYPOINTS];
+short num_inv_neighbors[MAX_WAYPOINTS];
+short* inv_neighbors[MAX_WAYPOINTS];
+
 // declare the array of paths
 W_PATH *w_paths[MAX_W_PATHS];
 
@@ -1575,7 +1581,17 @@ void waypoint_console_output_manager_t::ProcessIt(const char* message, bool log_
 */
 void waypoint_editing_functions_t::InitAll(void)
 {
-	int i;
+	// free neighbors
+	for(int i = 0; i < MAX_WAYPOINTS; i++) {
+		if(neighbors[i])
+			free(neighbors[i]);
+		if(inv_neighbors[i])
+			free(inv_neighbors[i]);
+		neighbors[i] = NULL;
+		inv_neighbors[i] = NULL;
+		num_neighbors[i] = 0;
+		num_inv_neighbors[i] = 0;
+	}
 
 	// initialize the trigger event messages
 	FreeAllTriggers();
@@ -1587,7 +1603,7 @@ void waypoint_editing_functions_t::InitAll(void)
 	}
 
 	// destroy all waypoints with all their flags, priorities etc.
-	for (i = 0; i < MAX_WAYPOINTS; i++)
+	for (int i = 0; i < MAX_WAYPOINTS; i++)
 	{
 		InitThisWaypoint(i);
 	}
@@ -3452,6 +3468,32 @@ int waypoint_editing_functions_t::LoadWaypoints(edict_t* pEntity, const char* cu
 					// we have to mark this slot as a used
 					if (strlen(trigger_events[index].message) > 1)
 						trigger_gamestate[index].SetUsed(true);
+				}
+
+				// read the neighbors
+				for(int i = 0; i < header.number_of_waypoints; i++) {
+					if(fread(&num_neighbors[i], sizeof(short), 1, bfp) != 1)
+						break;
+
+					if(!num_neighbors[i])
+						continue;
+
+					neighbors[i] = (short*)malloc(num_neighbors[i] * sizeof(short));
+					fread(neighbors[i], sizeof(short), num_neighbors[i], bfp);
+				}
+				// compute inverse neighbors
+				for(int i = 0; i < header.number_of_waypoints; i++) {
+					for(int j = 0; j < header.number_of_waypoints; j++)
+						for(int jNeighbor = 0; jNeighbor < num_neighbors[j]; jNeighbor++) 
+							if(neighbors[j][jNeighbor] == i)
+								num_inv_neighbors[i]++;
+
+					inv_neighbors[i] = (short*)malloc(num_inv_neighbors[i] * sizeof(short));
+					int iNeighbor = 0;
+					for(int j = 0; j < header.number_of_waypoints; j++)
+						for(int jNeighbor = 0; jNeighbor < num_neighbors[j]; jNeighbor++)
+							if(neighbors[j][jNeighbor] == i)
+								inv_neighbors[i][iNeighbor++] = j;
 				}
 			}
 			else
@@ -10616,6 +10658,63 @@ int waypoints_and_paths_managing_functions_t::FindNewWaypointForBotAtPathEnd(bot
 	return min_index;
 }
 
+int waypoints_and_paths_managing_functions_t::FindNextWaypointOnShortestPath(int startingWaypoint, const Vector& goal) {
+	int goalWaypoint = NO_VAL;
+	float goalWaypointDistance = 9999.f;
+	for(int iWaypoint = 0; iWaypoint < num_waypoints; iWaypoint++) {
+		float distance = (waypoints[iWaypoint].origin - goal).Length();
+		if(distance < goalWaypointDistance) {
+			goalWaypointDistance = distance;
+			goalWaypoint = iWaypoint;
+		}
+	}
+
+	if(goalWaypoint == NO_VAL)
+		return NO_VAL;
+
+	static bool visitedWaypoints[MAX_WAYPOINTS];
+	memset(visitedWaypoints, false, sizeof(visitedWaypoints));
+	static short heapWaypoints[MAX_WAYPOINTS];
+	static float heapDistances[MAX_WAYPOINTS];
+	heapWaypoints[0] = goalWaypoint;
+	heapDistances[0] = goalWaypointDistance;
+	int heapSize = 1;
+
+	while(heapSize > 0) {
+		heapSize--;
+		int iWaypoint = heapWaypoints[0];
+		float distance = heapDistances[0];
+		for(int i = 0; i < heapSize; i++) {
+			heapWaypoints[i] = heapWaypoints[i + 1];
+			heapDistances[i] = heapDistances[i + 1];
+		}
+		if(visitedWaypoints[iWaypoint])
+			continue;
+
+		visitedWaypoints[iWaypoint] = true;
+
+		for(int iNeighbor = 0; iNeighbor < num_inv_neighbors[iWaypoint]; iNeighbor++) {
+			int neighborWaypoint = inv_neighbors[iWaypoint][iNeighbor];
+			if(neighborWaypoint == startingWaypoint)
+				return iWaypoint;
+
+			if(visitedWaypoints[neighborWaypoint])
+				continue;
+
+			float neighborDistance = distance + (waypoints[neighborWaypoint].origin - waypoints[iWaypoint].origin).Length();
+			int iHeap = heapSize;
+			while(iHeap > 0 && heapDistances[iHeap - 1] >= neighborDistance) {
+				heapWaypoints[iHeap] = heapWaypoints[iHeap - 1];
+				heapDistances[iHeap] = heapDistances[iHeap - 1];
+				iHeap--;
+			}
+			heapWaypoints[iHeap] = neighborWaypoint;
+			heapDistances[iHeap] = neighborDistance;
+			heapSize++;
+		}
+	}
+	return NO_VAL;
+}
 
 /*
 * finds the next waypoint for bot to head towards
@@ -11036,6 +11135,42 @@ int waypoints_and_paths_managing_functions_t::FindNextWaypointForBot(bot_t* pBot
 		w_index[0] = NO_VAL;
 
 		edict_t* pEdict = pBot->pEdict;
+
+		// pick from neighbors
+		if(current_wpt != NO_VAL && num_neighbors[current_wpt] > 0) {
+			edict_t* pGoal = pBot->GetGoal();
+			if(!pGoal || (pGoal->v.owner && pGoal->v.owner != pEdict)) {
+				pGoal = NULL;
+				int numGoals = 0;
+
+				edict_t* pGoalCandidate = NULL;
+				while((pGoalCandidate = util.FindEntityByClassname(pGoalCandidate, "bot_goal")))
+					if(!pGoalCandidate->v.owner || pGoalCandidate->v.owner == pEdict)
+						numGoals++;
+
+				int randomGoal = RANDOM_LONG(0, numGoals - 1);
+				while((pGoalCandidate = util.FindEntityByClassname(pGoalCandidate, "bot_goal"))) {
+					if(pGoalCandidate->v.owner && pGoalCandidate->v.owner != pEdict)
+						continue;
+
+					randomGoal--;
+					if(randomGoal >= 0)
+						continue;
+
+					pGoal = pGoalCandidate;
+					break;
+				}
+				pBot->SetGoal(pGoal);
+			}
+
+			if(pGoal) {
+				return FindNextWaypointOnShortestPath(current_wpt, pGoal->v.origin);
+			}
+			else {
+				// pick random neighbor
+				return neighbors[current_wpt][RANDOM_LONG(0, num_neighbors[current_wpt] - 1)];
+			}
+		}
 
 		// find the nearest waypoint
 		for (i = 0; i < num_waypoints; i++)
