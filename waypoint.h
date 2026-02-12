@@ -258,6 +258,8 @@ extern WAYPOINT waypoints[MAX_WAYPOINTS];
 // number of waypoints currently in use
 extern int num_waypoints;
 
+extern float waypoint_penalty[MAX_WAYPOINTS];
+
 #define MAX_W_PATHS			512		// the maximum number of path for a map
 #define AUTOADD_DISTANCE	10.0	// player must be this close to add a waypoint to the path
 

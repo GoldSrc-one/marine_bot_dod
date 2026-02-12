@@ -86,6 +86,7 @@ short num_neighbors[MAX_WAYPOINTS];
 short* neighbors[MAX_WAYPOINTS];
 short num_inv_neighbors[MAX_WAYPOINTS];
 short* inv_neighbors[MAX_WAYPOINTS];
+float waypoint_penalty[MAX_WAYPOINTS];
 
 // declare the array of paths
 W_PATH *w_paths[MAX_W_PATHS];
@@ -1591,6 +1592,7 @@ void waypoint_editing_functions_t::InitAll(void)
 		inv_neighbors[i] = NULL;
 		num_neighbors[i] = 0;
 		num_inv_neighbors[i] = 0;
+		waypoint_penalty[i] = 0;
 	}
 
 	// initialize the trigger event messages
@@ -10701,15 +10703,20 @@ int waypoints_and_paths_managing_functions_t::FindNextWaypointOnShortestPath(int
 			if(visitedWaypoints[neighborWaypoint])
 				continue;
 
-			float neighborDistance = distance + (waypoints[neighborWaypoint].origin - waypoints[iWaypoint].origin).Length();
+			float neighborDistance = (waypoints[neighborWaypoint].origin - waypoints[iWaypoint].origin).Length();
+
+			if((waypoints[neighborWaypoint].flags | waypoints[iWaypoint].flags) & W_FL_CROUCH)
+				neighborDistance *= 2.f;
+
+			float totalDistance = distance + neighborDistance + waypoint_penalty[neighborWaypoint];
 			int iHeap = heapSize;
-			while(iHeap > 0 && heapDistances[iHeap - 1] >= neighborDistance) {
+			while(iHeap > 0 && heapDistances[iHeap - 1] >= totalDistance) {
 				heapWaypoints[iHeap] = heapWaypoints[iHeap - 1];
 				heapDistances[iHeap] = heapDistances[iHeap - 1];
 				iHeap--;
 			}
 			heapWaypoints[iHeap] = neighborWaypoint;
-			heapDistances[iHeap] = neighborDistance;
+			heapDistances[iHeap] = totalDistance;
 			heapSize++;
 		}
 	}
@@ -11164,7 +11171,11 @@ int waypoints_and_paths_managing_functions_t::FindNextWaypointForBot(bot_t* pBot
 			}
 
 			if(pGoal) {
-				return FindNextWaypointOnShortestPath(current_wpt, pGoal->v.origin);
+				auto nextShortestPathWaypoint = FindNextWaypointOnShortestPath(current_wpt, pGoal->v.origin);
+				if(nextShortestPathWaypoint) {
+					waypoint_penalty[nextShortestPathWaypoint] += 10.f;
+					return nextShortestPathWaypoint;
+				}
 			}
 			else {
 				// pick random neighbor

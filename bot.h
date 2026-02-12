@@ -699,7 +699,7 @@ public:
 	inline void SetGotStuckTime(void)					{ got_stuck_time = gpGlobals->time; }
 	inline float GetGotStuckTime(void)					{ return got_stuck_time; }
 	inline bool NotBeenStuckFor(float time_in_seconds)	{ return ((got_stuck_time + time_in_seconds) < gpGlobals->time); }
-	inline void IncUnstuckAttempts(int increment = 1)	{ unstuck_attempts = unstuck_attempts + increment; }
+	inline void IncUnstuckAttempts(int increment = 1) { unstuck_attempts = unstuck_attempts + increment; IncWaypointPenalty(increment * 20.f); }
 	inline void ResetUnstuckAttempts(void)				{ unstuck_attempts = 0; }
 	inline int GetUnstuckAttempts(void)					{ return unstuck_attempts; }
 	
@@ -902,7 +902,7 @@ public:
 
 	inline edict_t* GetGoal() { return pGoal; }
 	inline void SetGoal(edict_t* pGoal) { this->pGoal = pGoal; }
-
+	void IncWaypointPenalty(float penalty);
 
 	bool is_used;
 	int respawn_state;

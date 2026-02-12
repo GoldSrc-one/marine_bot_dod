@@ -3045,6 +3045,8 @@ void bot_t::BotThink()
 	{
 		if (IsBotFlag(BF_MUST_BE_INITIALIZED))
 		{
+			IncWaypointPenalty(300.f);
+
 			BotSpawnInit();
 
 			// initialize stuff just once
@@ -4925,6 +4927,8 @@ void bot_t::BotThink()
 					{
 						if (botdebugger.IsDebugStuck())
 							conOutput.Notify("***STUCK*** NO WAY TO UNSTUCK SELF -> will commit SUICIDE\n", this);
+
+						IncWaypointPenalty(1000.f);
 
 						ClientKill(pEdict);
 					}

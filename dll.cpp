@@ -1682,6 +1682,14 @@ void StartFrame( void )
 			UpdateWaypointData();
 
 			internals.SetUpdateWaypointDataTime(gpGlobals->time + 2.0f);
+
+			for(int iWaypoint = 0; iWaypoint < num_waypoints; iWaypoint++) {
+				if(!waypoint_penalty[iWaypoint])
+					continue;
+
+				float decayed = waypoint_penalty[iWaypoint] - 1.0f;
+				waypoint_penalty[iWaypoint] = decayed < 0 ? 0 : decayed;
+			}
 		}
 
 		// print the internal message to appropriate client console

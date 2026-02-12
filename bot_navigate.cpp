@@ -236,6 +236,10 @@ bool bot_t::IsInCrampedSpace(void)
 	return false;
 }
 
+void bot_t::IncWaypointPenalty(float penalty) {
+	if(GetCurrentWaypoint() != NO_VAL)
+		waypoint_penalty[GetCurrentWaypoint()] += penalty;
+}
 
 void BotFixIdealPitch(edict_t *pEdict)
 {
@@ -1786,6 +1790,8 @@ bool BotHeadTowardWaypoint( bot_t *pBot )
 			// update path history
 			pBot->prev_path_index = pBot->curr_path_index;
 			pBot->curr_path_index = NO_VAL;
+
+			waypoint_penalty[unreachable_wpt_index] += 100.f;
 		}
 	}
 
