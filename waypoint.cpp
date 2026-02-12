@@ -11144,7 +11144,7 @@ int waypoints_and_paths_managing_functions_t::FindNextWaypointForBot(bot_t* pBot
 		edict_t* pEdict = pBot->pEdict;
 
 		// pick from neighbors
-		if(current_wpt != NO_VAL && num_neighbors[current_wpt] > 0) {
+		if(current_wpt != NO_VAL && num_neighbors[current_wpt] > 0 && !pBot->IsNeed(NEED_RESETNAVIG)) {
 			edict_t* pGoal = pBot->GetGoal();
 			if(!pGoal || (pGoal->v.owner && pGoal->v.owner != pEdict)) {
 				pGoal = NULL;
@@ -11177,10 +11177,8 @@ int waypoints_and_paths_managing_functions_t::FindNextWaypointForBot(bot_t* pBot
 					return nextShortestPathWaypoint;
 				}
 			}
-			else {
-				// pick random neighbor
-				return neighbors[current_wpt][RANDOM_LONG(0, num_neighbors[current_wpt] - 1)];
-			}
+			// pick random neighbor
+			return neighbors[current_wpt][RANDOM_LONG(0, num_neighbors[current_wpt] - 1)];
 		}
 
 		// find the nearest waypoint

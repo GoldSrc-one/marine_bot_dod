@@ -762,10 +762,10 @@ void BotPickName(char* name_buffer, const char* team_value_as_string)
 	{
 		if(externals.GetBalanceTime() > 0.f) {
 			if(util.GetTeamOnePlayerCount() <= util.GetTeamTwoPlayerCount())
-			team = teamONE.GetTeamId();
-		else
-			team = teamTWO.GetTeamId();
-	}
+				team = teamONE.GetTeamId();
+			else
+				team = teamTWO.GetTeamId();
+		}
 		else {
 			team = RANDOM_LONG(1, 2);
 		}
@@ -4384,16 +4384,15 @@ void bot_t::BotThink()
 		}
 	}
 
-	if(pGoal && pGoal->v.aiment && g_engfuncs.pfnIndexOfEdict(pGoal->v.aiment)) {
+	if(GetGoal() && GetGoal()->v.aiment && g_engfuncs.pfnIndexOfEdict(GetGoal()->v.aiment)) {
 		//go for the goal entity
 		auto goalEntity = pGoal->v.aiment;
 		auto viewOrigin = pEdict->v.origin + pEdict->v.view_ofs;
 		auto goalDir = goalEntity->v.origin - viewOrigin;
-		float dist = goalDir.Length2D();
+		float dist = fmaxf(goalDir.Length2D(), fabsf(goalDir.z));
 		TraceResult tr = {};
 		RemoveTask(TASK_USE | TASK_NOJUMP);
 		if(dist <= 128.f || (UTIL_TraceLine(goalEntity->v.origin, viewOrigin, ignore_monsters, goalEntity, &tr), tr.flFraction == 1.0f || tr.pHit == pEdict)) {
-			SetTask(TASK_USE | TASK_NOJUMP);
 			Vector bot_angles = UTIL_VecToAngles(goalDir);
 			pEdict->v.idealpitch = -bot_angles.x;
 			pEdict->v.ideal_yaw = bot_angles.y;
@@ -4408,6 +4407,7 @@ void bot_t::BotThink()
 				pEdict->v.button |= IN_DUCK;
 			}
 			if(dist <= 64.f && (pGoal->v.button & IN_USE)) {
+				SetTask(TASK_USE | TASK_NOJUMP);
 				SetDontCheckStuck("bot_goal");
 				SetMoveSpeed(MoveSpeed::slow);
 				if(pEdict->v.maxspeed == 1.0f || !(pEdict->v.oldbuttons & IN_USE))
