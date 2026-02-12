@@ -760,10 +760,15 @@ void BotPickName(char* name_buffer, const char* team_value_as_string)
 	// otherwise pick team with less players
 	else
 	{
-		if (util.GetTeamOnePlayerCount() <= util.GetTeamTwoPlayerCount())
+		if(externals.GetBalanceTime() > 0.f) {
+			if(util.GetTeamOnePlayerCount() <= util.GetTeamTwoPlayerCount())
 			team = teamONE.GetTeamId();
 		else
 			team = teamTWO.GetTeamId();
+	}
+		else {
+			team = RANDOM_LONG(1, 2);
+		}
 	}
 
 	// allies

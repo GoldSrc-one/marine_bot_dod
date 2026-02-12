@@ -129,8 +129,13 @@ void bot_t::BotStartGame()
 	{
 		start_action = MSG_VGUI_IDLE;	// switch back to idle
 
-		if ((GetBotClass() < 1) || (GetBotClass() > 8))
-			SetBotClass(RANDOM_LONG(1, 8));
+		if((GetBotClass() < 1) || (GetBotClass() > 8)) {
+			// RANDOM
+			FakeClientCommand(pEdict, "cls_random", NULL, NULL);
+
+			backup_weapon = dod_weapon_colt;
+			melee_weapon = dod_weapon_amerknife;
+		}
 
 		// select the class the bot wishes to use
 		if (GetBotClass() == 1)
@@ -231,8 +236,13 @@ void bot_t::BotStartGame()
 	{
 		start_action = MSG_VGUI_IDLE;  // switch back to idle
 
-		if ((GetBotClass() < 1) || (GetBotClass() > 8))
-			SetBotClass(RANDOM_LONG(1, 8));
+		if((GetBotClass() < 1) || (GetBotClass() > 8)) {
+			// RANDOM
+			FakeClientCommand(pEdict, "cls_random", NULL, NULL);
+
+			backup_weapon = dod_weapon_luger;
+			melee_weapon = dod_weapon_spade;
+		}
 
 		if (GetBotClass() == 1)
 		{
@@ -329,8 +339,13 @@ void bot_t::BotStartGame()
 	{
 		start_action = MSG_VGUI_IDLE;  // switch back to idle
 
-		if ((GetBotClass() < 1) || (GetBotClass() > 10))
-			SetBotClass(RANDOM_LONG(1, 10));
+		if((GetBotClass() < 1) || (GetBotClass() > 10)) {
+			// RANDOM
+			FakeClientCommand(pEdict, "cls_random", NULL, NULL);
+
+			backup_weapon = dod_weapon_luger;
+			melee_weapon = dod_weapon_gerknife;
+		}
 
 		if (GetBotClass() == 1)
 		{
@@ -452,10 +467,15 @@ void bot_t::BotStartGame()
 	{
 		start_action = MSG_VGUI_IDLE;  // switch back to idle
 
-		if ((GetBotClass() < 1) || (GetBotClass() > 5))
-			SetBotClass(RANDOM_LONG(1, 5));
+		if((GetBotClass() < 1) || (GetBotClass() > 5)) {
+			// RANDOM
+			FakeClientCommand(pEdict, "cls_random", NULL, NULL);
 
-		if (bot_class == 1)
+			backup_weapon = dod_weapon_webley;
+			melee_weapon = dod_weapon_amerknife;
+		}
+
+		if (GetBotClass() == 1)
 		{
 			// RIFLEMAN
 			FakeClientCommand(pEdict, "cls_enfield", NULL, NULL);
