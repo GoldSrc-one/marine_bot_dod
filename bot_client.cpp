@@ -167,8 +167,15 @@ void BotClient_CurrentWeapon(void *p, int bot_index)
 			{
 				bots[bot_index].bot_weapons |= (1 << iId);  // set this weapon bit
 
-				if (iState == 1)
-				{
+				// update the ammo counts for this weapon
+				bots[bot_index].current_weapon.iAmmo1 = bots[bot_index].curr_rgAmmo[weapon_defs[iId].iAmmo1];
+				bots[bot_index].current_weapon.iAmmo2 = bots[bot_index].curr_rgAmmo[weapon_defs[iId].iAmmo2];
+
+				if(bots[bot_index].main_weapon != iId && IsPrimary(iId)) {
+					bots[bot_index].main_weapon = iId;
+				}
+
+				if(iState == 1) {
 					if(bots[bot_index].current_weapon.iId <= 0 && !IsPrimary(iId)) {
 						bots[bot_index].main_weapon = NO_VAL;
 						bots[bot_index].SetWeaponStatus(WS_NOAMMOFORMAIN);
@@ -183,18 +190,12 @@ void BotClient_CurrentWeapon(void *p, int bot_index)
 						}
 					}
 
+					if(IsPrimary(iId))
+						bots[bot_index].UseWeapon(uWeapon::main);
+
 					bots[bot_index].current_weapon.isActive = iState;
 					bots[bot_index].current_weapon.iId = iId;
 					bots[bot_index].current_weapon.iClip = iClip;
-
-					// update the ammo counts for this weapon
-					bots[bot_index].current_weapon.iAmmo1 =	bots[bot_index].curr_rgAmmo[weapon_defs[iId].iAmmo1];
-					bots[bot_index].current_weapon.iAmmo2 =	bots[bot_index].curr_rgAmmo[weapon_defs[iId].iAmmo2];
-
-					if(bots[bot_index].main_weapon != iId && IsPrimary(iId)) {
-						bots[bot_index].main_weapon = iId;
-						bots[bot_index].UseWeapon(uWeapon::main);
-					}
 				}
 			}
 		}
