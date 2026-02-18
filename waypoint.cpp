@@ -11172,7 +11172,7 @@ int waypoints_and_paths_managing_functions_t::FindNextWaypointForBot(bot_t* pBot
 
 			if(pGoal) {
 				auto nextShortestPathWaypoint = FindNextWaypointOnShortestPath(current_wpt, pGoal->v.origin);
-				if(nextShortestPathWaypoint) {
+				if(nextShortestPathWaypoint != NO_VAL) {
 					waypoint_penalty[nextShortestPathWaypoint] += 10.f;
 					return nextShortestPathWaypoint;
 				}
