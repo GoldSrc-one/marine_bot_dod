@@ -476,17 +476,16 @@ bool utils_t::AreTeammates(edict_t* pEntity1, edict_t* pEntity2) {
 */
 int utils_t::GetBotIndex(edict_t *pEdict)
 {
-   int index;
+	for (int index=0; index < MAX_CLIENTS; index++)
+	{
+		if(!bots[index].is_used)
+			continue;
 
-   for (index=0; index < MAX_CLIENTS; index++)
-   {
-      if (bots[index].pEdict == pEdict)
-      {
-         return index;
-      }
-   }
+		if(bots[index].pEdict == pEdict)
+			return index;
+	}
 
-   return -1;  // return -1 if edict is not a bot
+	return -1;  // return -1 if edict is not a bot
 }
 
 
