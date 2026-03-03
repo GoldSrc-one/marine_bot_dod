@@ -1413,7 +1413,7 @@ void StartFrame( void )
 						}
 
 						// check for any bots that were very recently kicked...
-						if ((bots[index].kick_time + 5.0f) > previous_time)
+						if (false && (bots[index].kick_time + 5.0f) > previous_time)
 						{
 							bots[index].respawn_state = RESPAWN_NEED_TO_RESPAWN;
 							count++;
@@ -1759,7 +1759,7 @@ void StartFrame( void )
 				temp_bot_skill++;
 				sprintf(c_skill, "%d", temp_bot_skill);
 
-				BotCreate(NULL, c_team, c_class, c_skill, bots[index].name, NULL);
+				BotCreate(NULL, c_team, c_class, c_skill, c_name, NULL);
 
 				// set back stored settings
 				bots[index].SetAimSkill(aim_skill);
