@@ -1,0 +1,75 @@
+name: Build
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - '**.md'
+
+  pull_request:
+    types: [opened, reopened, synchronize]
+  release:
+    types: [published]
+
+jobs:
+  windows:
+    name: 'Windows'
+    runs-on: windows-2022
+
+    steps:
+      - name: Configure
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+        with:
+          vs-version: '17'
+
+      - name: Build
+        run: |
+          msbuild msvc/marine_bot.sln -p:Configuration=Release /t:Build /p:Platform=Win32
+
+      - name: Create zip
+        run: |
+          Expand-Archive 'dist\mb097(DOD).zip'
+          Move-Item '.\mb097(DOD)\marinebot\' marine_bot
+          Expand-Archive dist\dod13_all_official_maps_waypointpack_Martee.zip marine_bot\defaultwpts
+          Copy-Item dist\marine.cfg marine_bot\marine.cfg
+          Copy-Item Release\marine_bot.dll marine_bot\marine_bot.dll
+          Copy-Item Release\marine_bot.pdb marine_bot\marine_bot.pdb
+          Compress-Archive -Path marine_bot -Destination marine_bot.zip
+
+      - name: Deploy artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: win32
+          path: |
+            marine_bot.zip
+
+  publish:
+    name: 'Publish'
+    runs-on: ubuntu-latest
+    needs: [windows]
+
+    steps:
+      - name: Deploying windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: win32
+
+      - name: Publish artifacts
+        uses: softprops/action-gh-release@v2
+        id: publish-job
+        if: |
+          startsWith(github.ref, 'refs/tags/')
+        with:
+          files: marine_bot.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN }}
