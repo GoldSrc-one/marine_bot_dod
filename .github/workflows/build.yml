@@ -34,7 +34,7 @@ jobs:
 
       - name: Build
         run: |
-          msbuild msvc/marine_bot.sln -p:Configuration=Release /t:Build /p:Platform=Win32
+          msbuild marine_bot.sln -p:Configuration=Release /t:Build /p:Platform=Win32
 
       - name: Create zip
         run: |
