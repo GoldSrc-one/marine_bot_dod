@@ -2168,12 +2168,8 @@ void SpectatorThink( edict_t *pEntity )
 
 void Sys_Error( const char *error_string )
 {
-	if (debug_engine) { fp=fopen(debug_fname,"a"); fprintf(fp, "Sys_Error: %s\n",error_string); fclose(fp); }
-
 #ifdef _DEBUG
-	fp=fopen(debug_fname,"a");
-	fprintf(fp, "Sys_Error: %s\n",error_string);
-	fclose(fp);
+	if (debug_engine) { fp=fopen(debug_fname,"a"); fprintf(fp, "Sys_Error: %s\n",error_string); fclose(fp); }
 #endif
 
 	// dump the error in error log ... useful when there is missing some model on map load etc.
