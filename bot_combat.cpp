@@ -2701,12 +2701,12 @@ Vector BotBodyTarget(bot_t *pBot)
 		// distance modifier is based on the optics/scope zoom level current weapon allows where guns with no optics have worse value
 		if (pEdict->v.fov == ZOOM_1X)
 		{
-			dist_scale = foe_distance / 3000.0f;
+			dist_scale = foe_distance / 1500.0f;
 			is_using_optics = true;
 		}
 		else
 		{
-			dist_scale = foe_distance / 1000.0f;
+			dist_scale = foe_distance / 500.0f;
 			is_using_optics = false;
 		}
 
@@ -4129,10 +4129,18 @@ void BotShootAtEnemy( bot_t *pBot )
 		pBot->UseWeapon(uWeapon::knife);
 	}
 
-	// aim for the head and/or body
-	v_enemy = BotBodyTarget(pBot) - util.GetGunPosition(pEdict);
+	// are we already aiming at the enemy?
+	UTIL_MakeVectors(pEdict->v.v_angle);
+	TraceResult tr = {};
+	UTIL_TraceLine(util.GetGunPosition(pEdict), util.GetGunPosition(pEdict) + gpGlobals->v_forward * 10000.f, dont_ignore_monsters, pEdict, &tr);
+	if(tr.pHit != pBot->pBotEnemy) {
+		// aim for the head and/or body
+		v_enemy = BotBodyTarget(pBot) - util.GetGunPosition(pEdict);
 
-	pEdict->v.v_angle = UTIL_VecToAngles( v_enemy );
+		auto enemy_angles = UTIL_VecToAngles(v_enemy);
+		pEdict->v.v_angle.x = enemy_angles.x;
+		pEdict->v.ideal_yaw = enemy_angles.y;
+	}
 
 	if (pEdict->v.v_angle.y > 180)
 		pEdict->v.v_angle.y -=360;

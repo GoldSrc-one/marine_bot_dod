@@ -254,7 +254,7 @@ void BotFixIdealPitch(edict_t *pEdict)
 //assume at what fps was the bot developed
 //because now the turn speed is compensated according to frametime
 //so I multiply it back to what I assume was the dev's fps
-const float ASSUME_FPS = 30.f;
+const float ASSUME_FPS = 10.f;
 
 float BotChangePitch( bot_t *pBot, float speed )
 {
