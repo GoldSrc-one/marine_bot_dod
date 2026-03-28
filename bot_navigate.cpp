@@ -251,6 +251,10 @@ void BotFixIdealPitch(edict_t *pEdict)
 		pEdict->v.idealpitch += 360;
 }
 
+//assume at what fps was the bot developed
+//because now the turn speed is compensated according to frametime
+//so I multiply it back to what I assume was the dev's fps
+const float ASSUME_FPS = 30.f;
 
 float BotChangePitch( bot_t *pBot, float speed )
 {
@@ -304,6 +308,9 @@ float BotChangePitch( bot_t *pBot, float speed )
 		if (speed <= 0.0f)
 			speed = 1.0f;
 	}
+
+	//adjust speed for framerate
+	speed *= ASSUME_FPS * (gpGlobals->time - gLastFrameTime);
 
 	// here we have four cases, both angle positive, one positive and the other negative, one negative and the other positive, or both negative.  handle each case separately
 
@@ -398,6 +405,9 @@ float BotChangeYaw( bot_t *pBot, float speed )
 		if (speed <= 0.0f)
 			speed = 1.0f;
 	}
+
+	//adjust speed for framerate
+	speed *= ASSUME_FPS * (gpGlobals->time - gLastFrameTime);
 
 	diff = fabsf(current - ideal);
 

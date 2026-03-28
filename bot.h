@@ -1137,6 +1137,7 @@ typedef struct
 
 extern bot_target_offset_t bot_target_offset[BOT_SKILL_LEVELS];
 
+extern float gLastFrameTime;
 
 // define some function prototypes...
 BOOL ClientConnect(edict_t* pEntity, const char* pszName, const char* pszAddress, char szRejectReason[128]);

@@ -1290,6 +1290,7 @@ void PlayerPostThink( edict_t *pEntity )
 	(*other_gFunctionTable.pfnPlayerPostThink)(pEntity);
 }
 
+float gLastFrameTime;
 void StartFrame( void )
 {
 	if (gpGlobals->deathmatch)
@@ -1434,6 +1435,8 @@ void StartFrame( void )
 			client_update_time = gpGlobals->time + 10.0f;
 
 			botmanager.SetBotCheckTime(gpGlobals->time + 30.0f);
+
+			gLastFrameTime = 0;
 		}
 		// NEW MAP STARTED - Initialization END
 
@@ -2099,6 +2102,7 @@ void StartFrame( void )
 
 		previous_time = gpGlobals->time;
 	} // is deathmatch END
+	gLastFrameTime = gpGlobals->time;
 
 	(*other_gFunctionTable.pfnStartFrame)();
 }
