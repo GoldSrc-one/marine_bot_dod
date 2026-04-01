@@ -3727,7 +3727,7 @@ inline void CheckStance(bot_t *pBot, float enemy_distance)
 	}
 
 	// is enemy close enough?
-	if (enemy_distance <= pBot->GetWeaponEffectiveRange(pBot->backup_weapon))
+	if (enemy_distance <= pBot->GetWeaponEffectiveRange(pBot->current_weapon.iId))
 	{
 		// not already lying prone AND NOT a machinegunner?
 		if ((pBot->IsBehaviour(BOT_PRONED) == false) && (IsMachinegun(pBot->main_weapon) == false))
