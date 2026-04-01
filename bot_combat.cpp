@@ -2579,6 +2579,8 @@ edict_t* bot_t::BotFindEnemy()
 	if (NotSeenEnemyfor(15.0f))
 		ResetSeeEnemyTime();
 
+	ResetAimDuration();
+
 	return (pNewEnemy);
 }
 
@@ -2658,7 +2660,7 @@ Vector BotBodyTarget(bot_t *pBot)
 	float foe_distance;
 	float dist_scale = 1.0f;			// distance based modifier for the offsets
 	bool is_using_optics = false;		// is the bot targeting enemy through weapon optics/scope?
-	float x_ofs, y_ofs, z_ofs;			// plain aiming offsets read from the offsets array
+	Vector skill_offset;			// plain aiming offsets read from the offsets array
 	float d_x = 0.0f, d_y = 0.0f, d_z = 0.0f;		// the final offsets that were modified by target distance
 	int hs_percentage;					// precentual chance to aim for a headshot
 
@@ -2701,12 +2703,12 @@ Vector BotBodyTarget(bot_t *pBot)
 		// distance modifier is based on the optics/scope zoom level current weapon allows where guns with no optics have worse value
 		if (pEdict->v.fov == ZOOM_1X)
 		{
-			dist_scale = foe_distance / 1500.0f;
+			dist_scale = foe_distance / 900.0f;
 			is_using_optics = true;
 		}
 		else
 		{
-			dist_scale = foe_distance / 500.0f;
+			dist_scale = foe_distance / 300.0f;
 			is_using_optics = false;
 		}
 
@@ -2719,33 +2721,25 @@ Vector BotBodyTarget(bot_t *pBot)
 		// get the basic offsets from the offset array based on the aiming skill and the use of optics/scope
 		if (is_using_optics)
 		{
-			x_ofs = bot_target_offset[pBot->GetAimSkill()].x_axis_sniper;
-			y_ofs = bot_target_offset[pBot->GetAimSkill()].y_axis_sniper;
-			z_ofs = bot_target_offset[pBot->GetAimSkill()].z_axis_sniper;
+			skill_offset.x = bot_target_offset[pBot->GetAimSkill()].x_axis_sniper;
+			skill_offset.y = bot_target_offset[pBot->GetAimSkill()].y_axis_sniper;
+			skill_offset.z = bot_target_offset[pBot->GetAimSkill()].z_axis_sniper;
 		}
 		else
 		{
-			x_ofs = bot_target_offset[pBot->GetAimSkill()].x_axis;
-			y_ofs = bot_target_offset[pBot->GetAimSkill()].y_axis;
-			z_ofs = bot_target_offset[pBot->GetAimSkill()].z_axis;
+			skill_offset.x = bot_target_offset[pBot->GetAimSkill()].x_axis;
+			skill_offset.y = bot_target_offset[pBot->GetAimSkill()].y_axis;
+			skill_offset.z = bot_target_offset[pBot->GetAimSkill()].z_axis;
 		}
 
-		// now we can generate the final offsets using the basic/plain offsets and the distance modifier
-		if (x_ofs == 0.0f)
-			// if the basic/plain offset is zero we will mess only with the distance modifier
-			d_x = RANDOM_FLOAT(-0.1f, 0.1f) * dist_scale;
-		else
-			d_x = RANDOM_FLOAT(-x_ofs, x_ofs) * dist_scale;
+		if(skill_offset == g_vecZero)
+			skill_offset = Vector(0.1f, 0.1f, 0.1f);
 
-		if (y_ofs == 0.0f)
-			d_y = RANDOM_FLOAT(-0.1f, 0.1f) * dist_scale;
-		else
-			d_y = RANDOM_FLOAT(-y_ofs, y_ofs) * dist_scale;
+		float swayFactor = dist_scale / (pBot->GetAimDuration() + 0.1f);
 
-		if (z_ofs == 0.0f)
-			d_z = RANDOM_FLOAT(-0.1f, 0.1f) * dist_scale;
-		else
-			d_z = RANDOM_FLOAT(-z_ofs, z_ofs) * dist_scale;
+		d_x = sinf(3.1f * M_PI * gpGlobals->time) * skill_offset.x * swayFactor;
+		d_y = sinf(3.0f * M_PI * gpGlobals->time) * skill_offset.y * swayFactor;
+		d_z = sinf(2.9f * M_PI * gpGlobals->time) * skill_offset.z * swayFactor;
 	}
 
 	// add offset to initial aim vector
@@ -4119,6 +4113,8 @@ void BotShootAtEnemy( bot_t *pBot )
 			}
 		}
 
+		pBot->ResetAimDuration();
+
 		// we can't shoot at this enemy, because we can't see him
 		return;
 	}
@@ -4129,21 +4125,14 @@ void BotShootAtEnemy( bot_t *pBot )
 		pBot->UseWeapon(uWeapon::knife);
 	}
 
-	// are we already aiming at the enemy?
-	UTIL_MakeVectors(pEdict->v.v_angle);
-	TraceResult tr = {};
-	UTIL_TraceLine(util.GetGunPosition(pEdict), util.GetGunPosition(pEdict) + gpGlobals->v_forward * 10000.f, dont_ignore_monsters, pEdict, &tr);
-	if(tr.pHit != pBot->pBotEnemy) {
-		// aim for the head and/or body
-		v_enemy = BotBodyTarget(pBot) - util.GetGunPosition(pEdict);
+	// aim for the head and/or body
+	v_enemy = BotBodyTarget(pBot) - util.GetGunPosition(pEdict);
 
-		auto enemy_angles = UTIL_VecToAngles(v_enemy);
-		pEdict->v.v_angle.x = enemy_angles.x;
-		pEdict->v.ideal_yaw = enemy_angles.y;
-	}
-
-	if (pEdict->v.v_angle.y > 180)
-		pEdict->v.v_angle.y -=360;
+	auto enemy_angles = UTIL_VecToAngles(v_enemy);
+	pEdict->v.idealpitch = -(enemy_angles.x - pBot->GetRecoil());
+	BotFixIdealPitch(pEdict);
+	pEdict->v.ideal_yaw = enemy_angles.y;
+	BotFixIdealYaw(pEdict);
 
 	// is bot using bipod?
 	if (pBot->IsTask(TASK_BIPOD))
@@ -4171,21 +4160,6 @@ void BotShootAtEnemy( bot_t *pBot )
 			BotUseBipod(pBot, false, "ShootAtEnemy()|TaskBipod prevents facing enemy -> FOLD IT");
 		}
 	}
-
-	// Paulo-La-Frite - START bot aiming bug fix
-	if (pEdict->v.v_angle.x > 180)
-		pEdict->v.v_angle.x -=360;
-
-	// set the body angles to point the gun correctly
-	pEdict->v.angles.x = pEdict->v.v_angle.x / 3;
-	pEdict->v.angles.y = pEdict->v.v_angle.y;
-	pEdict->v.angles.z = 0;
-
-	// adjust the view angle pitch to aim correctly (MUST be after body v.angles stuff)
-	pEdict->v.v_angle.x = -pEdict->v.v_angle.x;
-	// Paulo-La-Frite - END
-
-	BotFixIdealYaw(pEdict);
 
 	v_enemy.z = 0;  // ignore z component (up & down)
 

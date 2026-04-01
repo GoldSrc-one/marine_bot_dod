@@ -809,6 +809,8 @@ public:
 	inline void SetBotReactionTime(float time_in_seconds) { bot_reaction_time = gpGlobals->time + time_in_seconds; }
 	inline float GetBotReactionTime(void)				{ return bot_reaction_time; }
 	inline bool IsBotReactionTimeOver(void)				{ return (bot_reaction_time < gpGlobals->time); }
+	inline void ResetAimDuration()						{ bot_aim_start_time = gpGlobals->time; }
+	inline float GetAimDuration()						{ return bot_aim_start_time - gpGlobals->time; }
 	inline void AddRecoil(float pitchRecoil)			{ bot_recoil_pitch = GetRecoil() + pitchRecoil; bot_recoil_time = gpGlobals->time; }
 	inline float GetRecoil()							{ return fmaxf(0.f, bot_recoil_pitch - pEdict->v.pitch_speed * (gpGlobals->time - bot_recoil_time)); }
 
@@ -1065,6 +1067,7 @@ private:
 	float prev_distance_to_enemy;		// previous distance to enemy to check if enemy is moving
 	float bot_hide_time;				// the time when bot will try to stay hidden in combat (usually crouched)
 	float bot_reaction_time;			// delay between spotting the enemy and starting to fight back (i.e. bot won't shoot at the enemy during this time)
+	float bot_aim_start_time;			// when the bot started aiming at the current enemy
 	float bot_recoil_pitch;				// last applied pitch recoil
 	float bot_recoil_time;				// when recoil was applied
 
