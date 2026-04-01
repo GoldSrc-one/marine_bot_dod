@@ -1577,7 +1577,7 @@ bool bot_t::UpdateSounds(edict_t* pPlayer)
 bool bot_t::CanResetPitch(void)
 {
 	return ((IsTask(TASK_USE) == false) && (IsTask(TASK_IGNOREAIMWPTS) == false) && (IsSubTask(ST_FACEGENT_DONE) == false) && (IsSubTask(ST_FACEPOINTIS_DONE) == false) && (IsTurningToFaceGEnt() == false) &&
-		(wptmanager.IsWaypointTypeTeamPriority(GetCurrentAimWaypoint(), WptT::aim, 1, GetBotTeam()) == false));
+		(wptmanager.IsWaypointTypeTeamPriority(GetCurrentAimWaypoint(), WptT::aim, 1, GetBotTeam()) == false) && NotSeenEnemyfor(0.2f));
 }
 
 
