@@ -809,6 +809,8 @@ public:
 	inline void SetBotReactionTime(float time_in_seconds) { bot_reaction_time = gpGlobals->time + time_in_seconds; }
 	inline float GetBotReactionTime(void)				{ return bot_reaction_time; }
 	inline bool IsBotReactionTimeOver(void)				{ return (bot_reaction_time < gpGlobals->time); }
+	inline void AddRecoil(float pitchRecoil)			{ bot_recoil_pitch = GetRecoil() + pitchRecoil; bot_recoil_time = gpGlobals->time; }
+	inline float GetRecoil()							{ return fmaxf(0.f, bot_recoil_pitch - pEdict->v.pitch_speed * (gpGlobals->time - bot_recoil_time)); }
 
 	inline void UseWeapon(uWeapon weapon)				{ used_weapon = weapon; }
 	inline bool IsUsedWeaponMain(void)					{ return (used_weapon == uWeapon::main); }
@@ -1063,6 +1065,8 @@ private:
 	float prev_distance_to_enemy;		// previous distance to enemy to check if enemy is moving
 	float bot_hide_time;				// the time when bot will try to stay hidden in combat (usually crouched)
 	float bot_reaction_time;			// delay between spotting the enemy and starting to fight back (i.e. bot won't shoot at the enemy during this time)
+	float bot_recoil_pitch;				// last applied pitch recoil
+	float bot_recoil_time;				// when recoil was applied
 
 	uWeapon used_weapon;				// weapon that is being used: none, main, backup, knife, grenade, claymoremine
 	int weapon_status;					// bitmap of current weapon status (e.g. check weapon, mount silencer, etc.)

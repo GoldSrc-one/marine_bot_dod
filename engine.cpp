@@ -1361,6 +1361,99 @@ unsigned short pfnPrecacheEvent(int type, const char *psz)
    if (debug_engine) { fp=fopen(debug_fname,"a"); fprintf(fp,"pfnPrecacheEvent: %s\n", psz); fclose(fp); }
    return (*g_engfuncs.pfnPrecacheEvent)(type, psz);
 }
+
+void DoRecoil(bot_t* pBot, unsigned short eventindex) {
+	float factor = 1.f;
+	float pitch = 0.f;
+	float yaw = 2.f;
+	switch(eventindex) {
+	case  1: //thompson
+	case 17: //greasegun
+		pitch = 2.15f;
+		factor = 0.5375f;
+		break;
+
+	case  2: //m1carbine
+	case  5: //luger
+	case  7: //colt
+	case 24: //webley
+		pitch = 1.4f;
+		factor = 0.35f;
+		break;
+
+	case  3: //garand
+	case  9: //kar
+	case 20: //enfield
+		pitch = 8.f;
+		factor = 2.f;
+		break;
+
+	case  4: //scopedkar
+	case 21: //scopedenfield   
+		pitch = 6.f;
+		factor = 1.5f;
+		break;
+
+	case  6: //springfield
+		pitch = 5.6f;
+		factor = 1.4f;
+		break;
+
+	case 10: //mp44
+		pitch = 5.f;
+		factor = 1.25f;
+		break;
+
+	case 11: //mp40
+	case 22: //sten
+		pitch = 2.2f;
+		factor = 0.55f;
+		break;
+
+	case 12: //mg42
+	case 14: //mg34
+	case 15: //30cal
+		pitch = 20.f;
+		factor = 5.f;
+		break;
+
+	case 16: //bar
+	case 23: //bren
+		pitch = 6.72f;
+		factor = 1.3f;
+		break;
+
+	case 18: //fg42
+		pitch = 5.3f;
+		factor = 1.325f;
+		break;
+
+	case 19: //k43
+		pitch = 7.f;
+		factor = 1.75f;
+		break;
+	default:
+		return;
+	}
+	
+	auto pPlayer = pBot->pEdict;
+	if(pPlayer->v.iuser3 == 2 || pPlayer->v.vuser1.x == 2)
+		return;
+	yaw = factor;
+	factor = pPlayer->v.iuser3 ? 0.25f : 0.5f;
+	pitch *= factor;
+	yaw *= factor;
+
+	yaw *= RANDOM_FLOAT(0.8f, 1.1f);
+	if(RANDOM_LONG(0, 1))
+		yaw = -yaw;
+
+	pPlayer->v.v_angle.x -= pitch;
+	pPlayer->v.v_angle.y += yaw;
+	
+	pBot->AddRecoil(pitch);
+}
+
 void pfnPlaybackEvent(int flags, const edict_t *pInvoker, unsigned short eventindex, float delay,
    float *origin, float *angles, float fparam1,float fparam2, int iparam1, int iparam2, int bparam1, int bparam2)
 {
@@ -1607,7 +1700,11 @@ void pfnPlaybackEvent(int flags, const edict_t *pInvoker, unsigned short eventin
 		}
 	}
 
-
+	if(pInvoker)
+		for(int iBot = 0; iBot < MAX_CLIENTS; iBot++)
+			if(bots[iBot].is_used && bots[iBot].pEdict == pInvoker)
+				DoRecoil(&bots[iBot], eventindex);
+	
 	(*g_engfuncs.pfnPlaybackEvent)(flags, pInvoker, eventindex, delay, origin, angles, fparam1, fparam2, iparam1, iparam2, bparam1, bparam2);
 }
 unsigned char *pfnSetFatPVS(float *org)
