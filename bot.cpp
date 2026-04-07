@@ -273,6 +273,9 @@ void bot_t::BotSpawnInit()
 	prev_distance_to_enemy = 0.0f;
 	bot_hide_time = 0.0f;
 	bot_reaction_time = 0.0f;
+	bot_aim_start_time = 0.0f;
+	bot_recoil_pitch = 0.0f;
+	bot_recoil_time = 0.0f;
 	
 	weapon_action = W_READY;
 	weapon_status = 0;

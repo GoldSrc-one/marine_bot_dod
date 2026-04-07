@@ -811,7 +811,7 @@ public:
 	inline bool IsBotReactionTimeOver(void)				{ return (bot_reaction_time < gpGlobals->time); }
 	inline void ResetAimDuration()						{ bot_aim_start_time = gpGlobals->time; }
 	inline float GetAimDuration()						{ return bot_aim_start_time - gpGlobals->time; }
-	inline void AddRecoil(float pitchRecoil)			{ bot_recoil_pitch = GetRecoil() + pitchRecoil; bot_recoil_time = gpGlobals->time; }
+	inline void AddRecoil(float pitchRecoil)			{ bot_recoil_pitch = fminf(GetRecoil() + pitchRecoil, 90.f); bot_recoil_time = gpGlobals->time; }
 	inline float GetRecoil()							{ return fmaxf(0.f, bot_recoil_pitch - pEdict->v.pitch_speed * (gpGlobals->time - bot_recoil_time)); }
 
 	inline void UseWeapon(uWeapon weapon)				{ used_weapon = weapon; }
